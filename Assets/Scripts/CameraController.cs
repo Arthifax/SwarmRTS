@@ -15,9 +15,8 @@ public class CameraController : MonoBehaviour
     [SerializeField] private float movementTime;
     [SerializeField] private float rotationAmount;
     [SerializeField] private Vector3 zoomAmount;
-    [SerializeField] private float closestZoom;
-
-    [SerializeField] private bool canZoom;
+    [SerializeField] private float minZoom;
+    [SerializeField] private float maxZoom;
 
     private Vector3 newPosition;
     private Quaternion newRotation;
@@ -38,7 +37,7 @@ public class CameraController : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void LateUpdate()
     {
         if (followTransform != null)
         {
@@ -148,23 +147,19 @@ public class CameraController : MonoBehaviour
             newRotation *= Quaternion.Euler(Vector3.up * -rotationAmount);
         }
 
-        if (cameraTransform.position.y <= closestZoom)
-        {
-            canZoom = false;
-        }
-        else
-        {
-            canZoom = true;
-        }
-
         //RF to zoom in and out
-        if (canZoom && Input.GetKey(KeyCode.R))
+        if (Input.GetKey(KeyCode.R))
         {
             newZoom += zoomAmount;
         }
         if (Input.GetKey(KeyCode.F))
         {
             newZoom -= zoomAmount;
+        }
+        
+        if (newZoom.y <= minZoom || newZoom.y >= maxZoom)
+        {
+            newZoom = cameraTransform.localPosition;
         }
         
         //Interpolate between cur and new pos and rot for smoother camera movement
