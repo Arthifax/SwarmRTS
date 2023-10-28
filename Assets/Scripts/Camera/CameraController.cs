@@ -1,3 +1,4 @@
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,6 +18,9 @@ public class CameraController : MonoBehaviour
     [SerializeField] private Vector3 zoomAmount;
     [SerializeField] private float minZoom;
     [SerializeField] private float maxZoom;
+
+    [SerializeField] private bool canDragCamera = false;
+    public bool isDraggingCamera;
 
     private Vector3 newPosition;
     private Quaternion newRotation;
@@ -79,8 +83,18 @@ public class CameraController : MonoBehaviour
         }
         
         //Mouse drag movement
-        if (Input.GetMouseButtonDown(0))
+        if(Input.GetKey(KeyCode.LeftControl))
         {
+            canDragCamera = true;
+        }
+        else
+        {
+            canDragCamera = false;
+        }
+        
+        if (canDragCamera && Input.GetMouseButtonDown(0))
+        {
+            isDraggingCamera = true;
             Plane plane = new Plane(Vector3.up, Vector3.zero);
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
@@ -91,8 +105,9 @@ public class CameraController : MonoBehaviour
                 dragStartPosition = ray.GetPoint(entry);
             }
         }
-        if (Input.GetMouseButton(0))
+        if (canDragCamera && Input.GetMouseButton(0))
         {
+            isDraggingCamera = true;
             Plane plane = new Plane(Vector3.up, Vector3.zero);
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
@@ -104,6 +119,10 @@ public class CameraController : MonoBehaviour
 
                 newPosition = transform.position + dragStartPosition - dragCurrentPosition;
             }
+        }
+        if (canDragCamera && Input.GetMouseButtonUp(0))
+        {
+            isDraggingCamera = false;
         }
     }
 
