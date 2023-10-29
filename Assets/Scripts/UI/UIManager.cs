@@ -10,9 +10,24 @@ public class UIManager : MonoBehaviour
     
     public Transform buildingMenu; 
     public GameObject buildingButtonPrefab;
+    public Transform resourcesUIParent;
+    public GameObject gameResourceDisplayPrefab;
+    
+    private Dictionary<string, TextMeshProUGUI> _resourceTexts;
     
     private void Awake()
     {
+        // create texts for each in-game resource (gold, wood, stone...)
+        _resourceTexts = new Dictionary<string, TextMeshProUGUI>();
+        foreach (KeyValuePair<string, GameResource> pair in Globals.GAME_RESOURCES)
+        {
+            GameObject display = Instantiate(gameResourceDisplayPrefab, resourcesUIParent);
+            display.name = pair.Key;
+            _resourceTexts[pair.Key] = display.transform.Find("Text").GetComponent<TextMeshProUGUI>();
+            _SetResourceText(pair.Key, pair.Value.Amount);
+        }
+
+        // create buttons for each building type
         _buildingPlacer = GetComponent<BuildingPlacer>();
 
         // create buttons for each building type
@@ -32,5 +47,18 @@ public class UIManager : MonoBehaviour
     private void _AddBuildingButtonListener(Button b, int i)
     {
         b.onClick.AddListener(() => _buildingPlacer.SelectPlacedBuilding(i));
+    }
+    
+    private void _SetResourceText(string resource, int value)
+    {
+        _resourceTexts[resource].text = value.ToString();
+    }
+    
+    public void UpdateResourceTexts()
+    {
+        foreach (KeyValuePair<string, GameResource> pair in Globals.GAME_RESOURCES)
+        {
+            _SetResourceText(pair.Key, pair.Value.Amount);
+        }
     }
 }
