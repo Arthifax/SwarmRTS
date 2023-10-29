@@ -14,6 +14,7 @@ public class UIManager : MonoBehaviour
     public GameObject gameResourceDisplayPrefab;
     
     private Dictionary<string, TextMeshProUGUI> _resourceTexts;
+    private Dictionary<string, Button> _buildingButtons;
     
     private void Awake()
     {
@@ -31,6 +32,7 @@ public class UIManager : MonoBehaviour
         _buildingPlacer = GetComponent<BuildingPlacer>();
 
         // create buttons for each building type
+        _buildingButtons = new Dictionary<string, Button>();
         for (int i = 0; i < Globals.BUILDING_DATA.Length; i++)
         {
             GameObject button = GameObject.Instantiate(
@@ -41,6 +43,19 @@ public class UIManager : MonoBehaviour
             button.transform.Find("Text").GetComponent<TextMeshProUGUI>().text = code;
             Button b = button.GetComponent<Button>();
             _AddBuildingButtonListener(b, i);
+            _buildingButtons[code] = b;
+            if (!Globals.BUILDING_DATA[i].CanBuy())
+            {
+                b.interactable = false;
+            }
+        }
+    }
+    
+    public void CheckBuildingButtons()
+    {
+        foreach (BuildingData data in Globals.BUILDING_DATA)
+        {
+            _buildingButtons[data.Code].interactable = data.CanBuy();
         }
     }
 
